@@ -5,10 +5,9 @@ RUN     npm install
 RUN     npm run build
 
 
-FROM    node:10-alpine
-WORKDIR /usr/src/app
-COPY    --from=build /usr/src/app ./
-
+FROM    nginx 
 EXPOSE  3000
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY    --from=build /usr/src/app /usr/share/nginx/htmls
 
 CMD     [ "npm", "start" ]
