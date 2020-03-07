@@ -1,0 +1,30 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t ortizjd/covid-19-board -f Dockerfile .
+
+script:
+  - docker run -e CI=true ortizjd/covid-19-board npm run test
+
+after_success:
+  - docker build -t ortizjd/covid-19-board .
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take image and push them to docker hub
+  - docker push ortizjd/covid-19-board
+
+deploy:
+  edge: true
+  provider: elasticbeanstalk
+  region: "us-east-1"
+  app: "covid-19-board"
+  env: "Covid19Board-env"
+  bucket_name: "Covid19Board-env.eba-wpfaf3qu.us-east-1.elasticbeanstalk.com"
+  bucket_path: "covid-19-board"
+  on:
+    branch: master
+
+  access_key_id: $access_key_id
+  secret_access_key: $secret_access_key
